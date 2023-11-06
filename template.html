@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Shounak's Todos</title>
+    <meta name="theme-color" content="bg-blue-100">
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/x-icon" href="https://play-lh.googleusercontent.com/VPqK75BwKMtTDFF6UQS6E3GYdYqzvZfddDxoKRH-DSlXIcYLN_EeSy5OXKx0bhBTtLUU" />
+    <link rel="manifest" href='https://shounak.in/todo/manifest.json'>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://drshounak.github.io/todo/scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://smartgoat.me/serverless-todo/style.css"/>
+    <style>
+  
+    </style>
+  </head>
+
+  <body class="bg-blue-100">
+    <div id="content">
+     <div class="top-right-box">
+      <p id="date-month">Date Month</p>
+    </div>
+    <div class="top-left-box">
+      <button class="button is-white is-outlined mx-3" onclick="document.cookie ='octauthent_token= ; expires = Thu, 01 Jan 1970 00:00:00 GMT'; location.reload()" > Logout </button>
+    </div>
+    <br>
+    <br>
+    <div class="w-full h-full flex content-center justify-center mt-8">
+      <div class="bg-white shadow-md rounded px-4 pt-6 py-8 mb-4 max-width-600">  
+        <h1 class="block text-grey-800 text-md font-bold mb-2" style="color: rgb(8, 95, 124); font-size: 28px; font-weight: bold; margin-bottom: 25px;">Your Worklist</h1>       
+        <div class="flex">
+          <input
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-grey-800 font-bold leading-tight focus:outline-none focus:shadow-outline"
+            type="text"
+            name="name"
+            placeholder="Add a new Tododo"
+          />
+          <button
+            class="bg-blue-500 hover:bg-blue-800 text-white font-bold ml-2 py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            id="create"
+            type="submit"
+          >
+            Create
+          </button>
+        </div>
+        <div class="priority-container flex items-center mt-2">
+          <div class="priority-label mr-2">Priority:</div>
+          <select id="priorityInput">
+              <option value="low">Low</option>
+              <option value="mid">Mid</option>
+              <option value="high">High</option>
+          </select>
+          <i class="fa fa-chevron-down" aria-hidden="true"></i>
+      </div>           
+      <br>
+        <div class="mt-4" id="todos">
+          <table id="todos-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Your Todos</th>
+                <th>E</th>
+                <th>D</th>
+              </tr>
+            </thead>
+            <tbody id="todos-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="confirmationModal" class="modal hidden">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <p>Enter secret code to delete the todo:</p>
+          <input type="password" id="secretCodeInput">
+          <button class="bg-blue-500 hover:bg-blue-800 text-white font-bold ml-2 py-2 px-4 rounded focus:outline-none focus:shadow-outline" id="confirmDeleteBtn">Confirm Delete</button>
+        </div>
+      </div>
+      <div id="editModal" class="modal hidden">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 style="color: #087f4a; font-size: 18px; font-weight: bold;">Edit Todo</h2>
+        <br>
+        <input type="text" id="editTodoInput" placeholder="Edit your task...">
+        <select id="editPriorityInput">
+        <option disabled selected>Select Priority</option>
+        <option value="high">High Priority</option>
+        <option value="mid">Medium Priority</option>
+        <option value="low">Low Priority</option>
+        </select>
+        <button id="confirmEditBtn">Edit</button>
+        </div>
+        </div>
+      
+    </div>
+    </div>
+    <br>
+    <div class="footer">
+      <div class="footer-content">
+        <p style="font-size: 14px;font-family: 'Roboto Mono', monospace;">&copy; <span id="current-year"></span> <a href="https://shounak.in/" target="_blank" rel="noopener noreferrer">Shounak Pal</a> | <a href="https://smartgoat.me/" target="_blank" rel="noopener noreferrer">The SmartGoat Blog</a></p>
+      </div>
+    </div>
+    <script>
+      var currentYear = new Date().getFullYear();
+      $("#current-year").text(currentYear);
+    </script>
+    
+<script>
+  window.todos = $TODOS;
+
+  var updateTodos = function () {
+      fetch('/', {
+          method: 'PUT',
+          body: JSON.stringify({ todos: window.todos })
+      });
+      populateTodos();
+  };
+
+  
+  var completeTodo = function (evt) {
+      var checkbox = evt.target;
+      var todoId = checkbox.parentNode.parentNode.dataset.todo;
+      var todo = window.todos.find(t => t.id === todoId);
+      todo.completed = !todo.completed;
+      updateTodos();
+  };
+  var completedTodo = function (evt) {
+      var checkbox = evt.target;
+      var todoId = checkbox.parentNode.parentNode.dataset.todo;
+      var todo = window.todos.find(t => t.id === todoId);
+      todo.completed = !todo.completed;
+      updateTodos();
+  };
+
+
+  var deleteTodo = function (todoId) {
+  var modal = document.getElementById('confirmationModal');
+  var span = modal.querySelector('.close');
+  var confirmBtn = document.getElementById('confirmDeleteBtn');
+  var secretCodeInput = document.getElementById('secretCodeInput'); // Corrected the ID here
+
+  modal.style.display = 'block';
+
+  span.onclick = function () {
+    modal.style.display = 'none';
+  };
+
+  confirmBtn.onclick = function () {
+    var enteredCode = secretCodeInput.value;
+    var hashedEnteredCode = CryptoJS.SHA256(enteredCode).toString(); // Hash the entered secret code
+
+    // Replace 'hashedCode' with the actual hashed secret code stored in your code
+    var hashedCode = 'GENERATE_A_SHA256_HASHCODE_WITH_YOUR_DESIRED_SECRET_CODE_TOAUTHORIZE_DELETE'; // Example hashed secret code
+
+    if (hashedEnteredCode === hashedCode) {
+      window.todos = window.todos.filter(todo => todo.id !== todoId);
+      updateTodos();
+      modal.style.display = 'none';
+    } else {
+      alert('Incorrect secret code. Todo not deleted.');
+      modal.style.display = 'none';
+    }
+  };
+};
+
+
+
+  var editTodo = function (todo) {
+    var modal = document.getElementById('editModal');
+    var span = modal.querySelector('.close');
+    var confirmBtn = document.getElementById('confirmEditBtn');
+    var editTodoInput = document.getElementById('editTodoInput');
+    var priorityInput = document.getElementById('editPriorityInput');
+
+    // Auto-populate the edit modal input with the current todo name
+    editTodoInput.value = todo.name;
+    priorityInput.value = todo.priority;
+
+    modal.style.display = 'block';
+
+    span.onclick = function () {
+      modal.style.display = 'none';
+    };
+
+    confirmBtn.onclick = function () {
+      todo.name = editTodoInput.value;
+      todo.priority = priorityInput.value;
+      updateTodos();
+      modal.style.display = 'none';
+    };
+  };
+
+  function getPriorityTag(priority) {
+    if (priority === 'high') {
+      return '<span class="priority-tag high">High</span>';
+    } else if (priority === 'mid') {
+      return '<span class="priority-tag mid">Mid</span>';
+    } else if (priority === 'low') {
+      return '<span class="priority-tag low">Low</span>';
+    } else {
+      return ''; // For 'none', return an empty string
+    }
+  }
+
+
+  var populateTodos = function () {
+      var todosTable = document.getElementById('todos-body');
+      todosTable.innerHTML = '';
+
+      window.todos.forEach(todo => {
+          var row = document.createElement('tr');
+          row.dataset.todo = todo.id;
+
+
+          var checkboxCell = document.createElement('td');
+          var checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = todo.completed;
+          checkbox.addEventListener('change', completedTodo);
+          checkboxCell.appendChild(checkbox);
+          row.appendChild(checkboxCell);
+
+
+          var todoCell = document.createElement('td');
+          var priorityTag = getPriorityTag(todo.priority);
+          todoCell.innerHTML = `${todo.name} ${priorityTag}`;
+          row.appendChild(todoCell);
+
+          
+          var editCell = document.createElement('td');
+          var editButton = document.createElement('button');
+          editButton.className = 'edit-btn';
+          editButton.innerHTML = '<i class="fas fa-edit"></i>';
+          editButton.addEventListener('click', function () {
+              editTodo(todo);
+          });
+          editCell.appendChild(editButton);
+          row.appendChild(editCell);
+
+          var deleteCell = document.createElement('td');
+          var deleteButton = document.createElement('button');
+          deleteButton.className = 'delete-btn';
+          deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+          deleteButton.addEventListener('click', function () {
+              deleteTodo(todo.id);
+          });
+          deleteCell.appendChild(deleteButton);
+          row.appendChild(deleteCell);
+
+
+          todosTable.appendChild(row);
+      });
+  };
+
+  var createTodo = function () {
+  var input = document.querySelector('input[name=name]');
+  var priorityInput = document.getElementById('priorityInput');
+  
+  if (input.value.length) {
+    var priority = priorityInput.value || 'low'; // Default to 'low' if no priority is selected
+    window.todos = [
+      ...window.todos,
+      {
+        id: `${window.todos.length + 1}`,
+        name: input.value,
+        completed: false,
+        priority: priority
+      }
+    ];
+    input.value = '';
+    priorityInput.value = 'low'; // Reset priority input to default value after adding todo
+    updateTodos();
+  }
+};
+
+
+  document.querySelector('#create').addEventListener('click', createTodo);
+
+  populateTodos();
+</script>
+
+    <script>
+      // Function to get the current date and month
+      function getCurrentDateMonth() {
+        const today = new Date();
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return today.toLocaleDateString('en-IN', options);
+      }
+    
+      // Update the content of the date-month element
+      document.getElementById('date-month').textContent = getCurrentDateMonth();
+    </script>
+  </body>
+</html>
