@@ -1,7 +1,7 @@
 # serverless-todolist
 This is a serverless todolist application for personal use deployed using cloudflare workers and KV database. It is a modified version of the todo-list template given with cloudflare workers.
 
-Detailed Explanation [Blog Post Here](https://smartgoat.me).
+Detailed Explanation [Blog Post Here](https://smartgoat.me/create-your-own-serverless-todolist-using-cloudflare-workers/).
 ## features
 * CRUD with edit and priority tag
 * Have a backend, so multi device use. You can even share it with close team.
@@ -19,5 +19,6 @@ Detailed Explanation [Blog Post Here](https://smartgoat.me).
 * Mailgun Account (Free Tier - Flex Plan)
 * Google Cloud Account (3 Scheduler free)
 
-Post about Detailed Deployment [Here](https://smartgoat.me/)
+Post about Detailed Deployment [Here](https://smartgoat.me/create-your-own-serverless-todolist-using-cloudflare-workers/).
+**If you deploy it please link my blog post to that. It helps a lot. Thanks.
 
