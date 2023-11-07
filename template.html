@@ -156,7 +156,7 @@
     var hashedEnteredCode = CryptoJS.SHA256(enteredCode).toString(); // Hash the entered secret code
 
     // Replace 'hashedCode' with the actual hashed secret code stored in your code
-    var hashedCode = 'GENERATE_A_SHA256_HASHCODE_WITH_YOUR_DESIRED_SECRET_CODE_TOAUTHORIZE_DELETE'; // Example hashed secret code
+    var hashedCode = '961ba08fc5787c748d350402ce3c19caec3d2bc36015b09de9530a870d12a88f'; // Example hashed secret code GENERATE_A_SHA256_HASHCODE_WITH_YOUR_DESIRED_SECRET_CODE_TOAUTHORIZE_DELETE
 
     if (hashedEnteredCode === hashedCode) {
       window.todos = window.todos.filter(todo => todo.id !== todoId);
