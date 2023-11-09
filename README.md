@@ -2,8 +2,8 @@
 This is a serverless todolist application for personal use deployed using cloudflare workers and KV database. It is a modified version of the todo-list template given with cloudflare workers.
 ## DEMO:
 This is the [demo site](https://example-todolist.smartgoat.me/)
-User: demouser
-Password: demopassword
+-==User: demouser==
+-==Password: demopassword==
 
 Detailed Explanation [Blog Post Here](https://smartgoat.me/create-your-own-serverless-todolist-using-cloudflare-workers/).
 ## features
